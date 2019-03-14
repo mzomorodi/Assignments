@@ -1,15 +1,10 @@
 <!--
-   build.xml file for SER422 Spring 2018
-   Copyright 2018 Kevin A. Gary
-
-   This build.xml does most of the things asked of you in the
-   submission guidelines document. However, you may need to 
-   customize actions for these targets per each lab's
-   particular submission requirements, so please take the time
-   to understand how this works!
+   Matthew Zomorodi (mzomorod)
+   Arizona State University- CIDSE
+   SER 422 Spring 2019
 -->
 
-<project name="PhoneServlet" default="compile" basedir=".">
+<project name="lab1" default="compile" basedir=".">
   <property file="build.properties"/>
 
   <!-- init target makes the directory structure. You may not
