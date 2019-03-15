@@ -12,9 +12,9 @@
 	   require this if you set your environment up by hand. -->
 	<target name="init">
 		<tstamp/>
-		<mkdir dir="lib"/>
+		<echo message="Initializing directory..."/>
+		<mkdir dir="${lib.dir}"/>
 		<mkdir dir="${classes.dir}"/>
-		<mkdir dir="${javadoc.dir}"/>
 		<mkdir dir="${properties.dir}"/>
 	</target>
 
@@ -51,7 +51,7 @@
 		</copy>
 		<copy file="index.html" tofile="${build.home}/WEB-INF/index.html"/>
 		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
-		<copy file="resources/phonebook.txt" tofile="${build.home}/WEB-INF/classes/resources/phonebook.txt"/>
+		<!--copy file="resources/phonebook.txt" tofile="${build.home}/WEB-INF/classes/resources/phonebook.txt"/ -->
 	</target>
     
 	<!-- This example dist target merely jars up the webapp files. -->
