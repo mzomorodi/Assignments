@@ -33,32 +33,39 @@
 		</javac>
 	</target>
 
-	<!-- Deploys war file to Tomcat server on port 8080. -->
-	<target name="deploy" depends="dist">
-		<echo message="Deploying to tomcat at ${tomcat.home}-${port}"/>
-		<copy file="${dist.jar}" todir="${tomcat.home}-${port}/webapps" overwrite="yes"/>
-	</target>
-
 	<!-- Creates war file. -->
 	<target name="build" depends="compile">
 		<mkdir dir="${build.home}"/>
 		<mkdir dir="${build.home}/WEB-INF"/>
 		<copy todir="${build.home}/WEB-INF">
-			<fileset dir="." includes="${classes.dir}/**,${lib.dir}/**" excludes="${classes.dir}/driver/**"/>
+			<fileset dir="." includes="${classes.dir}/**,${lib.dir}/**"/>
 		</copy>
 		<copy todir="${build.home}/WEB-INF/${classes.dir}">
 			<fileset dir="${properties.dir}"/>
 		</copy>
-		<copy file="index.html" tofile="${build.home}/WEB-INF/index.html"/>
+		<copy todir="${build.home}/WEB-INF/${classes.dir}"/>
+			<fileset dir="${resources.dir}"/>
+		</copy>
 		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
 		<!--copy file="resources/phonebook.txt" tofile="${build.home}/WEB-INF/classes/resources/phonebook.txt"/ -->
 	</target>
     
 	<!-- This example dist target merely jars up the webapp files. -->
-	<!-- This target satisfies all requirements of lab submission. -->
 	<target name="dist" depends="build">
 		<jar destfile="${dist.jar}" basedir="${build.home}">
 		</jar>
+	</target>
+	
+	<!-- Deploys war file to Tomcat server on port 8080. -->
+	<target name="deploy" depends="dist">
+		<echo message="Deploying to tomcat at ${tomcat.home}-${port}"/>
+		<copy file="${dist.jar}" todir="${tomcat.home}-${port}/webapps" overwrite="yes"/>
+	</target>
+	
+	<!-- Prepares directory for course submission. -->
+	<target name="submit" depends="dist">
+		<copy file="${dist.jar}" todir="${app.name}-${asurite.id}.war"/>
+		<delete file="${dist.jar}"/>
 	</target>
 
 	<!-- Clean -->
