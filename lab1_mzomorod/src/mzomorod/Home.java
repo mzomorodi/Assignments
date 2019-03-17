@@ -30,12 +30,12 @@ public class Home extends HttpServlet {
 		out.println("<form action=\"/Lab1/todos\" method=\"post\">");
 		out.println("<label>Task Name: </label><input type=\"text\" name=\"name\"><br/><br/>");
 		out.println("<label>Description: </label><input type=\"text\" name=\"desc\"><br/><br/>");
-		out.println("<label>Task Days: </label><select name=\"days\" size=\"7\" multiple>");
+		out.println("<label>Task Days: </label><select name=\"days\" size=\"3\" multiple>");
 		out.println("<option value=\"1\">1</option><option value=\"2\">2</option>");
 		out.println("<option value=\"3\">3</option><option value=\"4\">4</option>");
 		out.println("<option value=\"5\">5</option><option value=\"6\">6</option>");
 		out.println("<option value=\"7\">7</option></select><br/><br/><br/>");
-		out.println("<label>Duration: </label><input type=\"text\" name=\"len\"><br/><br/>");
+		out.println("<label>Duration (Hrs): </label><input type=\"text\" name=\"len\"><br/><br/>");
 		out.println("<label>Owner: </label><input type=\"text\" name=\"owner\"><br/><br/>");
 		out.println("<input type=\"submit\">");
 		out.println("</form></body></html>");

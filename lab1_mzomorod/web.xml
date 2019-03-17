@@ -12,14 +12,12 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet>
-		<servlet-name>Task</servlet-name>
-		<servlet-class>mzomorod.Task</servlet-class>
-		<!--
+		<servlet-name>Todo</servlet-name>
+		<servlet-class>mzomorod.Todo</servlet-class>
 		<init-param>
-			<param-name>phonebook</param-name>
-			<param-value>/resources/phonebook.txt</param-value>
+			<param-name>tasklist</param-name>
+			<param-value>/resources/lab1data.json</param-value>
 		</init-param>
-		-->
 		<load-on-startup>1</load-on-startup>
 	</servlet>
   
@@ -28,7 +26,7 @@
 		<url-pattern>/index.html</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>Task</servlet-name>
+		<servlet-name>Todo</servlet-name>
 		<url-pattern>/todos</url-pattern>
 	</servlet-mapping>
 

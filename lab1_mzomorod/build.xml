@@ -13,7 +13,6 @@
 	<target name="init">
 		<tstamp/>
 		<echo message="Initializing directory..."/>
-		<mkdir dir="${lib.dir}"/>
 		<mkdir dir="${classes.dir}"/>
 		<mkdir dir="${properties.dir}"/>
 	</target>
@@ -40,14 +39,13 @@
 		<copy todir="${build.home}/WEB-INF">
 			<fileset dir="." includes="${classes.dir}/**,${lib.dir}/**"/>
 		</copy>
-		<copy todir="${build.home}/WEB-INF/${classes.dir}">
+		<copy todir="${build.home}/WEB-INF/${classes.dir}/${properties.dir}">
 			<fileset dir="${properties.dir}"/>
 		</copy>
-		<copy todir="${build.home}/WEB-INF/${classes.dir}"/>
+		<copy todir="${build.home}/WEB-INF/${classes.dir}/${resources.dir}">
 			<fileset dir="${resources.dir}"/>
 		</copy>
 		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
-		<!--copy file="resources/phonebook.txt" tofile="${build.home}/WEB-INF/classes/resources/phonebook.txt"/ -->
 	</target>
     
 	<!-- This example dist target merely jars up the webapp files. -->
