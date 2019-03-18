@@ -32,9 +32,21 @@ public class Todo extends HttpServlet {
 		throws ServletException, IOException {
 		
 		PrintWriter out= res.getWriter();
+		ContentProvider provider = new ContentProvider();
+		String color = "White";
 		TaskList taskList;
 		
 		/* Process Request Headers */
+		if (req.getHeader("User-Agent").matches("(.*)Firefox(.*)"))
+			color = "LightBlue";
+		if (req.getHeader("Accept").contains("text/plain")) {
+			provider.setContentType(new HTMLContent(req.getContextPath(), color));
+			res.setContentType("text/plain");
+		}
+		else {
+			provider.setContentType(new TextContent());
+			res.setContentType("text/html");
+		}
 		
 		/* Process Request */		
 		String name = req.getParameter("name");
@@ -48,41 +60,43 @@ public class Todo extends HttpServlet {
 			taskList = new TaskList(_filename);
 		} catch (IOException ioe) {
 			res.setStatus(500);
-			res.setContentType("text/html");
-			
-			out.println("<html><head><title>LAB1</title></head><body>");
-			out.println("<h1>500 Error: " + ioe);
-			out.println("</body></html>");
+			out.println(provider.getMessageContent("500 Error", ioe.toString()));
 			return;
 		}
 		
 		Task task = new Task(name, desc, days, duration, owner);
 		taskList.add(task);
-		int size = taskList.size();
-		
 		taskList.saveTaskList(_filename);
 		
 		/* Aggregate Response Payload */
 		
 		/* Set Response Headers */
 		res.setStatus(200);
-		res.setContentType("text/html");
 		
 		/* Write Results */
-		out.println("<html><head><title>LAB1</title></head><body>");
-		out.println("<h1> Operation Successful!</h1><br/>");
-		out.println("<p> There are " + size + " tasks.</p><br/>");
-		out.println("<a href=\"" + req.getRequestURL() + "\">RETURN</a>");
-		out.println("</body></html>");
+		out.println(provider.getMessageContent("Operation Successful!", 
+			"There are " + taskList.size() + " tasks."));
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res) 
 		throws ServletException, IOException {
 		
 		PrintWriter out= res.getWriter();
+		ContentProvider provider = new ContentProvider();
+		String color = "White";
 		TaskList taskList;
 		
 		/* Process Request Headers */
+		if (req.getHeader("User-Agent").matches("(.*)Firefox(.*)"))
+			color = "LightBlue";
+		if (req.getHeader("Accept").contains("text/plain")) {
+			provider.setContentType(new HTMLContent(req.getContextPath(), color));
+			res.setContentType("text/plain");
+		}
+		else {
+			provider.setContentType(new TextContent());
+			res.setContentType("text/html");
+		}
 		
 		/* Process Request */		
 		
@@ -91,37 +105,19 @@ public class Todo extends HttpServlet {
 			taskList = new TaskList(_filename);
 		} catch (IOException ioe) {
 			res.setStatus(500);
-			res.setContentType("text/html");
-			
-			out.println("<html><head><title>LAB1</title></head><body>");
-			out.println("<h1>500 Error: " + ioe);
-			out.println("</body></html>");
+			out.println(provider.getMessageContent("500 Error", ioe.toString()));
 			return;
 		}
-		
+		//TODO: PERFORM SEARCH BASED ON QUERY STRING
+		//
 		
 		/* Aggregate Response Payload */
 		
 		/* Set Response Headers */
 		res.setStatus(200);
-		res.setContentType("text/html");
+		res.setHeader("Cache-Control", "no-cache");
 		
 		/* Write Results */
-		out.println("<html><head><title>LAB1</title></head><body>");
-		Task[] tasks = taskList.getTasks();
-		for (Task task : tasks) {
-			out.println("Name: " + task.getName() + "<br/>");
-			out.println("Description: " + task.getDescription() + "<br/>");
-			String[] daysArr = task.getDays();
-			String result = "Days: ";
-			for (String dArr : daysArr) {
-				result += dArr + " ";
-			}
-			out.println(result + "<br/>");
-			out.println("Duration: " + task.getDuration() + "<br/>");
-			out.println("Owner: " + task.getOwner() + "<br/>");
-			out.println("<a href=\"" + req.getRequestURL() + "\">RETURN</a>");
-			out.println("</body></html>");
-		}
+		out.println(provider.getTaskContent(taskList.getTasks()));
 	}
 }

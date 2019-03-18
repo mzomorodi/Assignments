@@ -46,6 +46,7 @@
 			<fileset dir="${resources.dir}"/>
 		</copy>
 		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
+		<copy file="index.html" tofile="${build.home}/index.html"/>
 	</target>
     
 	<!-- This example dist target merely jars up the webapp files. -->

@@ -5,12 +5,7 @@
 <web-app>
 	<display-name>SER422 Lab1</display-name>
 	<description>Lab1 Assignment</description>
-  
-	<servlet>
-		<servlet-name>Home</servlet-name>
-		<servlet-class>mzomorod.Home</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+
 	<servlet>
 		<servlet-name>Todo</servlet-name>
 		<servlet-class>mzomorod.Todo</servlet-class>
@@ -20,11 +15,7 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-  
-	<servlet-mapping>
-		<servlet-name>Home</servlet-name>
-		<url-pattern>/index.html</url-pattern>
-	</servlet-mapping>
+
 	<servlet-mapping>
 		<servlet-name>Todo</servlet-name>
 		<url-pattern>/todos</url-pattern>
