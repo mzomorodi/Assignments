@@ -1,0 +1,10 @@
+# build files #
+*.class
+**/build/
+**/classes/
+**/bin/
+
+# Package Files #
+*.jar
+*.war
+*.zip
