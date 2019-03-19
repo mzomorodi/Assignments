@@ -18,6 +18,10 @@ public class TaskList implements Serializable {
 	
 	private HashMap<String, Task> taskList = new HashMap<String, Task>();
 	
+	public TaskList() {
+		
+	}
+	
 	public TaskList(String fname) throws IOException {
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream(fname);
 		

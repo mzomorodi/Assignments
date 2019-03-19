@@ -39,13 +39,13 @@ public class Todo extends HttpServlet {
 		/* Process Request Headers */
 		if (req.getHeader("User-Agent").matches("(.*)Firefox(.*)"))
 			color = "LightBlue";
-		if (req.getHeader("Accept").contains("text/plain")) {
+		if (req.getHeader("Accept").contains("text/html")) {
 			provider.setContentType(new HTMLContent(req.getContextPath(), color));
-			res.setContentType("text/plain");
+			res.setContentType("text/html");
 		}
 		else {
 			provider.setContentType(new TextContent());
-			res.setContentType("text/html");
+			res.setContentType("text/plain");
 		}
 		
 		/* Process Request */		
@@ -89,16 +89,21 @@ public class Todo extends HttpServlet {
 		/* Process Request Headers */
 		if (req.getHeader("User-Agent").matches("(.*)Firefox(.*)"))
 			color = "LightBlue";
-		if (req.getHeader("Accept").contains("text/plain")) {
+		if (req.getHeader("Accept").contains("text/html")) {
 			provider.setContentType(new HTMLContent(req.getContextPath(), color));
-			res.setContentType("text/plain");
+			res.setContentType("text/html");
 		}
 		else {
 			provider.setContentType(new TextContent());
-			res.setContentType("text/html");
+			res.setContentType("text/plain");
 		}
 		
-		/* Process Request */		
+		/* Process Request */
+		String description = req.getParameter("description");
+		description = description.substring(1, description.length()-1);
+		String owner = req.getParameter("owner");
+		owner = owner.substring(1, owner.length()-1);
+		char[] days = req.getParameter("days").toCharArray();
 		
 		/* Perform Processing */
 		try {
@@ -108,8 +113,6 @@ public class Todo extends HttpServlet {
 			out.println(provider.getMessageContent("500 Error", ioe.toString()));
 			return;
 		}
-		//TODO: PERFORM SEARCH BASED ON QUERY STRING
-		//
 		
 		/* Aggregate Response Payload */
 		
@@ -118,6 +121,26 @@ public class Todo extends HttpServlet {
 		res.setHeader("Cache-Control", "no-cache");
 		
 		/* Write Results */
-		out.println(provider.getTaskContent(taskList.getTasks()));
+		if (description == null || owner == null || days.length == 0) {
+			out.println(provider.getTaskContent(taskList.getTasks()));
+		}
+		else {
+			Task[] tasks = taskList.getTasks();
+			TaskList resultList = new TaskList();
+			
+			for (Task task : tasks) {
+				if (task.getDescription().equals(description) && task.getOwner().equals(owner)) {
+					String tDays = Arrays.toString(task.getDays());
+					for (char day : days) {
+						if (tDays.contains(Character.toString(day))) {
+							resultList.add(task);
+							break;
+						}
+					}
+				}
+			}
+			out.println(provider.getTaskContent(resultList.getTasks()));
+		}
+			
 	}
 }
