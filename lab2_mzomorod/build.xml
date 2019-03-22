@@ -1,0 +1,96 @@
+<!--
+   Lab1
+   Matthew Zomorodi (mzomorod)
+   Arizona State University- CIDSE
+   SER 422 Spring 2019
+-->
+
+<project name="lab2" default="compile" basedir=".">
+  <property file="build.properties"/>
+
+	<!-- init target makes the directory structure. You may not
+	   require this if you set your environment up by hand. -->
+	<target name="init">
+		<tstamp/>
+		<echo message="Initializing directory..."/>
+		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${properties.dir}"/>
+	</target>
+
+	<!-- Compiles your java files and puts the classes in classes.dir -->
+	<target name="compile" depends="init">
+		<javac
+			includeantruntime="false"
+			srcdir="${src.dir}"
+			destdir="${classes.dir}">
+			<!-- Make sure you set your classpath! -->
+			<classpath>
+				<fileset dir="${lib.dir}" includes="*.jar"/>
+				<fileset dir="${tomcat.home}-${port}/lib" includes="servlet-api.jar"/>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- Creates war file. -->
+	<target name="build" depends="compile">
+		<mkdir dir="${build.home}"/>
+		<mkdir dir="${build.home}/WEB-INF"/>
+		<copy todir="${build.home}/WEB-INF">
+			<fileset dir="." includes="${classes.dir}/**,${lib.dir}/**"/>
+		</copy>
+		<copy todir="${build.home}/WEB-INF/${classes.dir}/${properties.dir}">
+			<fileset dir="${properties.dir}"/>
+		</copy>
+		<copy todir="${build.home}/WEB-INF/${classes.dir}/${resources.dir}">
+			<fileset dir="${resources.dir}"/>
+		</copy>
+		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
+		<copy file="index.html" tofile="${build.home}/index.html"/>
+	</target>
+    
+	<!-- This example dist target merely jars up the webapp files. -->
+	<target name="dist" depends="build">
+		<jar destfile="${dist.jar}" basedir="${build.home}">
+		</jar>
+	</target>
+	
+	<!-- Deploys war file to Tomcat server on port 8080. -->
+	<target name="__deploy" depends="dist">
+		<echo message="Deploying to tomcat at ${tomcat.home}-${port}"/>
+		<copy file="${dist.jar}" todir="${tomcat.home}-${port}/webapps" overwrite="yes"/>
+	</target>
+
+	<target name="deploy-port1" depends="dist">
+		<antcall target="__deploy">
+			<param name="port" value="${tomcat.port1}"/>
+		</antcall>
+	</target>
+	<target name="deploy-port2" depends="dist">
+		<antcall target="__deploy">
+			<param name="port" value="${tomcat.port2}"/>
+		</antcall>
+	</target>
+	<target name="deploy" depends="dist">
+		<antcall target="deploy-port1"/>
+		<antcall target="deploy-port2"/>
+	</target>
+	
+	<!-- Prepares directory for course submission. -->
+	<target name="submit" depends="dist">
+		<copy file="${dist.jar}" todir="${app.name}-${asurite.id}.war"/>
+		<delete file="${dist.jar}"/>
+	</target>
+
+	<!-- Clean -->
+	<target name="clean">
+		<delete file="${dist.jar}"/>
+		<delete dir="${tomcat.home}-${tomcat-port1}/webapps/${app.name}"/>
+		<delete dir="${tomcat.home}-${tomcat-port2}/webapps/${app.name}"/>
+		<delete file="${tomcat.home}-${tomcat-port1}/webapps/${dist.jar}"/>
+		<delete file="${tomcat.home}-${tomcat.port2}/webapps/${dist.jar}"/>
+		<delete dir="${build.home}"/>
+		<delete dir="${classes.dir}"/>
+	</target>
+	
+</project>
