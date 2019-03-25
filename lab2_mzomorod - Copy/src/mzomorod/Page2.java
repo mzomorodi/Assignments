@@ -20,7 +20,6 @@ public class Page2 extends HttpServlet {
 				res.setContentType("text/html");
 				
 				out.println("<html><head><title>Lab 2</title></head><body>");
-				out.println("<p>Please enter your first and last name.</p><br/>");
 				out.println("<form action=\"controller\" method=\"post\">");
 				out.println("<label>First Name: </label>");
 				out.println("<input type=\"text\" name=\"fname\" value=\"" + firstName + "\"><br/><br/>");

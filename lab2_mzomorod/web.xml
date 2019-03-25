@@ -3,48 +3,63 @@
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
-	<display-name>SER422 Lab2</display-name>
-	<description>Lab2 Assignment</description>
-	
+	<display-name>Lab2</display-name>
+	<description>SER422 Lab2</description>
+
 	<servlet>
-		<servlet-name>Page0</servlet-name>
-		<servlet-class>mzomorod.Page0</servlet-class>
+		<servlet-name>Login</servlet-name>
+		<servlet-class>mzomorod.Login</servlet-class>
 		<init-param>
 			<param-name>userlist</param-name>
-			<param-value>/resources/lab2data.xml</param-value>
+			<param-value>/resources/lab2.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
-		<servlet-name>Page1</servlet-name>
-		<servlet-class>mzomorod.Page1</servlet-class>
+		<servlet-name>Welcome</servlet-name>
+		<servlet-class>mzomorod.Welcome</servlet-class>
 		<init-param>
 			<param-name>userlist</param-name>
-			<param-value>/resources/lab2data.xml</param-value>
+			<param-value>/resources/lab2.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>Controller</servlet-name>
-		<servlet-class>mzomorod.Controller</ervlet-class>
+		<servlet-class>mzomorod.Controller</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
-		<servlet-name>UserController</servlet-name>
-		<servlet-class>mzomorod.UserController</ervlet-class>
-		<load-on-startup>1</load-on-startup>
+		<servlet-name>Page2View</servlet-name>
+		<servlet-class>mzomorod.Page2</servlet-class>
 	</servlet>
-	
+	<servlet>
+		<servlet-name>Page3View</servlet-name>
+		<servlet-class>mzomorod.Page3</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Page4View</servlet-name>
+		<servlet-class>mzomorod.Page4</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Page5View</servlet-name>
+		<servlet-class>mzomorod.Page5</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Page6View</servlet-name>
+		<servlet-class>mzomorod.Page6</servlet-class>
+	</servlet>
+  
 	<servlet-mapping>
-		<servlet-name>Page0</servlet-name>
+		<servlet-name>Login</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-
+	
 	<servlet-mapping>
-		<servlet-name>Page1</servlet-name>
+		<servlet-name>Welcome</servlet-name>
 		<url-pattern>/welcome</url-pattern>
 	</servlet-mapping>
 	
@@ -54,12 +69,24 @@
 	</servlet-mapping>
 	
 	<servlet-mapping>
-		<servlet-name>UserController</servlet-name>
-		<url-pattern>/usercontroller</url-pattern>
+		<servlet-name>Page2View</servlet-name>
+		<url-pattern>/Page2</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Page3View</servlet-name>
+		<url-pattern>/Page3</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Page4View</servlet-name>
+		<url-pattern>/Page4</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Page5View</servlet-name>
+		<url-pattern>/Page5</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Page6View</servlet-name>
+		<url-pattern>/Page6</url-pattern>
 	</servlet-mapping>
 	
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-	</welcome-file-list>
-
 </web-app>

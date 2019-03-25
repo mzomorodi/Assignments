@@ -20,8 +20,8 @@ public class Page5 extends HttpServlet {
 			
 			out.println("<html><head><title>Lab 2</title></head><body>");
 			out.println("<form action=\"controller\" method=\"post\">");
-			out.println("<select name=\"state\">");
-			out.println("<option value=\"AL\" selected=\"selected\">Alabama</option><option value=\"AK\">Alaska</option>");
+			out.println("<select name=\"days\">");
+			out.println("<option value=\"AL\">Alabama</option><option value=\"AK\">Alaska</option>");
 			out.println("<option value=\"AZ\">Arizona</option><option value=\"AR\">Arkansas</option>");
 			out.println("<option value=\"CA\">California</option><option value=\"CO\">Colorado</option>");
 			out.println("<option value=\"CT\">Connecticut</option><option value=\"DE\">Delaware</option>");

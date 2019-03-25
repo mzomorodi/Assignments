@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+	<user>
+		<firstname>John</firstname>
+		<lastname>Smith</lastname>
+		<languages>
+			<l>Java</l>
+			<l>C++</l>
+			<l>Ada</l>
+		</languages>
+		<days>
+			<d>1</d>
+			<d>3</d>
+		</days>
+		<state>MI</state>
+	</user>
+	<user>
+		<firstname>Jane</firstname>
+		<lastname>Roberts</lstname>
+		<language>HTML</language>
+		<language>CSS</language>
+		<language>Javascript</language>
+		<language>Verilog</language>
+		<day>Saturday</day>
+		<day>Sunday</day>
+		<state>MO</state>
+	</user>
+</users>

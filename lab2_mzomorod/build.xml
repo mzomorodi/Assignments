@@ -1,18 +1,22 @@
 <!--
-   Lab1
-   Matthew Zomorodi (mzomorod)
-   Arizona State University- CIDSE
-   SER 422 Spring 2019
+   build.xml file for SER422 Spring 2018
+   Copyright 2018 Kevin A. Gary
+
+   This build.xml does most of the things asked of you in the
+   submission guidelines document. However, you may need to 
+   customize actions for these targets per each lab's
+   particular submission requirements, so please take the time
+   to understand how this works!
 -->
 
-<project name="lab2" default="compile" basedir=".">
-  <property file="build.properties"/>
+<project name="Lab2" default="compile" basedir=".">
+	<property file="build.properties"/>
 
 	<!-- init target makes the directory structure. You may not
 	   require this if you set your environment up by hand. -->
 	<target name="init">
 		<tstamp/>
-		<echo message="Initializing directory..."/>
+		<mkdir dir="lib"/>
 		<mkdir dir="${classes.dir}"/>
 		<mkdir dir="${properties.dir}"/>
 	</target>
@@ -26,36 +30,19 @@
 			<!-- Make sure you set your classpath! -->
 			<classpath>
 				<fileset dir="${lib.dir}" includes="*.jar"/>
-				<fileset dir="${tomcat.home}-${port}/lib" includes="servlet-api.jar"/>
+				<fileset dir="${tomcat.home}-${tomcat.port1}/lib" includes="servlet-api.jar"/>
 				<pathelement path="${classes.dir}"/>
 			</classpath>
 		</javac>
 	</target>
 
-	<!-- Creates war file. -->
-	<target name="build" depends="compile">
-		<mkdir dir="${build.home}"/>
-		<mkdir dir="${build.home}/WEB-INF"/>
-		<copy todir="${build.home}/WEB-INF">
-			<fileset dir="." includes="${classes.dir}/**,${lib.dir}/**"/>
-		</copy>
-		<copy todir="${build.home}/WEB-INF/${classes.dir}/${properties.dir}">
-			<fileset dir="${properties.dir}"/>
-		</copy>
-		<copy todir="${build.home}/WEB-INF/${classes.dir}/${resources.dir}">
-			<fileset dir="${resources.dir}"/>
-		</copy>
-		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
-		<copy file="index.html" tofile="${build.home}/index.html"/>
-	</target>
-    
-	<!-- This example dist target merely jars up the webapp files. -->
-	<target name="dist" depends="build">
-		<jar destfile="${dist.jar}" basedir="${build.home}">
-		</jar>
-	</target>
-	
-	<!-- Deploys war file to Tomcat server on port 8080. -->
+	<!-- The deploy target will be highly dependent on your deployed app.
+	   For example, if you are building a web-app, you should include
+	   commands to copy files over to your deploy directory according
+	   to the servlet specification, or create a .war file (via dist)
+	   and copy it over. If you are creating a standalone app (like this
+	   example does), you can create it in a given directory, or create
+	   your dist jar first that can be run using java -jar. -->
 	<target name="__deploy" depends="dist">
 		<echo message="Deploying to tomcat at ${tomcat.home}-${port}"/>
 		<copy file="${dist.jar}" todir="${tomcat.home}-${port}/webapps" overwrite="yes"/>
@@ -66,31 +53,48 @@
 			<param name="port" value="${tomcat.port1}"/>
 		</antcall>
 	</target>
-	<target name="deploy-port2" depends="dist">
-		<antcall target="__deploy">
-			<param name="port" value="${tomcat.port2}"/>
-		</antcall>
+  <target name="deploy-port2" depends="dist">
+    <antcall target="__deploy">
+      <param name="port" value="${tomcat.port2}"/>
+    </antcall>
 	</target>
 	<target name="deploy" depends="dist">
 		<antcall target="deploy-port1"/>
 		<antcall target="deploy-port2"/>
 	</target>
-	
-	<!-- Prepares directory for course submission. -->
-	<target name="submit" depends="dist">
-		<copy file="${dist.jar}" todir="${app.name}-${asurite.id}.war"/>
-		<delete file="${dist.jar}"/>
+  
+	<target name="build" depends="compile">
+		<mkdir dir="${build.home}"/>
+		<mkdir dir="${build.home}/WEB-INF"/>
+		<copy todir="${build.home}/WEB-INF">
+			<fileset dir="." includes="${classes.dir}/**,${lib.dir}/**" excludes="${classes.dir}/driver/**"/>
+		</copy>
+		<copy todir="${build.home}/WEB-INF/${classes.dir}/${properties.dir}">
+			<fileset dir="${properties.dir}"/>
+		</copy>
+		<copy todir="${build.home}/WEB-INF/${classes.dir}/${resources.dir}">
+			<fileset dir="${resources.dir}"/>
+		</copy>
+		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
+		<copy file="resources/lab2.xml" tofile="${build.home}/WEB-INF/classes/resources/lab2.xml"/>
 	</target>
+    
+	<!-- This example dist target merely jars up the webapp files. -->
+	<target name="dist" depends="build">
+		<jar destfile="${dist.jar}" basedir="${build.home}">
+		</jar>
+	</target>
+
 
 	<!-- Clean -->
 	<target name="clean">
 		<delete file="${dist.jar}"/>
-		<delete dir="${tomcat.home}-${tomcat-port1}/webapps/${app.name}"/>
-		<delete dir="${tomcat.home}-${tomcat-port2}/webapps/${app.name}"/>
+		<delete dir="${tomcat.home}-${tomcat-port1}/webapps/${app.name}_${asurite.id}"/>
+		<delete dir="${tomcat.home}-${tomcat-port2}/webapps/${app.name}_${asurite.id}"/>
 		<delete file="${tomcat.home}-${tomcat-port1}/webapps/${dist.jar}"/>
 		<delete file="${tomcat.home}-${tomcat.port2}/webapps/${dist.jar}"/>
 		<delete dir="${build.home}"/>
 		<delete dir="${classes.dir}"/>
 	</target>
-	
+
 </project>
