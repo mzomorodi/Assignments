@@ -8,10 +8,26 @@ public class Login extends HttpServlet {
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 		throws ServletException, IOException {
-
+		
 		PrintWriter out = res.getWriter();
 		
 		/* Process Request Headers */
+		String firstName, lastName;
+		Cookie fname, lname;
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("fname"))
+					fname = cookie;
+				if (cookie.getName().equals("lname"))
+					lname = cookie;
+			}
+		} else {
+			firstName = lastName = "";
+		}
+		
+		if (fname == null)
+			firstName = lastName = "";
 		
 		/* Process Request */
 		
@@ -27,9 +43,9 @@ public class Login extends HttpServlet {
 		out.println("<html><head><title>Lab 2</title></head><body>");
 		out.println("<form action=\"welcome\" method=\"post\">");
 		out.println("<label>First Name: </label>");
-		out.println("<input type=\"text\" name=\"fname\"><br/><br/>");
+		out.println("<input type=\"text\" name=\"fname\" value=\"" + firstName + "\"><br/><br/>");
 		out.println("<label>Last Name: </label>");
-		out.println("<input type=\"text\" name=\"lname\"><br/><br/>");
+		out.println("<input type=\"text\" name=\"lname\" value=\"" + lastName + "\"><br/><br/>");
 		out.println("<label>Password: </label><input type=\"password\" name=\"pword\"><br/><br/>");
 		out.println("<input type=\"submit\">");
 		out.println("</form></body></html>");

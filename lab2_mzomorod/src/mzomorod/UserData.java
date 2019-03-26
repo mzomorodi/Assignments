@@ -1,6 +1,6 @@
 package mzomorod;
 
-import javax.xml.parsers.DocumentBulderFactory;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -10,39 +10,61 @@ import javax.xml.transform.*;
 
 import org.w3c.dom.*;
 import java.net.*;
+import java.nio.file.*;
 import java.io.*;
 
 public class UserData {
 	
-	public static synchronized User[] getUserList(String filename) throws IOException {
+	private static Document readDoc(InputStream is) {
 		
-		InputStream is = this.getClass().getClassLoader().getResourceAsStream(filename);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(is);
-		doc.getDocumentElement().normalize();
-		NodeList userNodes = doc.getElementsByTagName("user");
-		User[] users = new User[userNodes.getLength()];
+		DocumentBuilder dBuilder;
+		Document doc = null;
+		
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+			doc = dBuilder.parse(is);
+			
+		} catch (Exception e) {
+			
+			System.err.println(e);
+			
+		}
+		
+		//is.close();
+		return doc;
+		
+	}
+	
+	public static synchronized User[] getUserList(InputStream is) {
+		
+		Document doc = readDoc(is);
+		Element root = doc.getDocumentElement();
+		root.normalize();
+		User[] users = null;
+		
+		NodeList userNodes = root.getElementsByTagName("user");
+		users = new User[userNodes.getLength()];
 		
 		for (int index = 0; index <userNodes.getLength(); index++) {
 			Node node = userNodes.item(index);
 			
 			User user = new User();
-			Element e = (Element) user;
+			Element e = (Element) node;
 			user.setFirstName(e.getElementsByTagName("firstname").item(0).getTextContent());
 			user.setLastName(e.getElementsByTagName("lastname").item(0).getTextContent());
 			
-			NodeList languageNodes = e.getElementsByTagName("languages");
+			NodeList languageNodes = e.getElementsByTagName("language");
 			String[] languages = new String[languageNodes.getLength()];
 			for (int i = 0; i < languageNodes.getLength(); i++) {
-				languages[i] = languageNodes[i].getTextContent();
+				languages[i] = languageNodes.item(i).getTextContent();
 			}
 			user.addLanguages(languages);
 			
-			NodeList dayNodes = e.getElementsByTagName("days");
+			NodeList dayNodes = e.getElementsByTagName("day");
 			String[] days = new String[dayNodes.getLength()];
 			for (int i = 0; i < dayNodes.getLength(); i++) {
-				days[i] = dayNodes[i].getTextContent();
+				days[i] = dayNodes.item(i).getTextContent();
 			}
 			user.addDays(days);
 			
@@ -51,23 +73,16 @@ public class UserData {
 			users[index] = user;
 		}
 		
-		is.close();
 		return users;
 		
 	}
 	
-	public static synchronized void addUser(User user, String filename) 
-		throws TransformerFactoryConfigurationError, TransformerConfigurationError{
+	public static synchronized void addUser(User user, InputStream is, URL resourceUrl) {
 		
-		InputStream is = this.getClass().getClassLoader().getResourceAsStream(filename);
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(is);
+		Document doc = readDoc(is);
 		Element root = doc.getDocumentElement();
 		root.normalize();
 		NodeList userNodes = doc.getElementsByTagName("user");
-		
-		
 		
 		Node userNode = null;
 		for (int index = 0; index < userNodes.getLength(); index++) {
@@ -82,7 +97,7 @@ public class UserData {
 			}
 		}
 		
-		// If user is found, then it is removed first, then replaced == updated
+		// If user is found, then it is removed and replaced == updated
 		if (userNode != null) {
 			root.removeChild(userNode);
 		}
@@ -117,26 +132,30 @@ public class UserData {
 		
 		root.appendChild(newUser);
 		
-		URL resourceUrl = getClass().getResource(fname);
+		writeDoc(doc, resourceUrl);
+		
+	}
+	
+	private static void writeDoc(Document doc, URL resourceUrl) {
+		
 		File file;
+		TransformerFactory transformerFactory;
+		Transformer transformer;
+		DOMSource domSource;
+		StreamResult streamResult;
 		
 		try {
+			
 			file = Paths.get(resourceUrl.toURI()).toFile();
-		} catch (InvalidPathException ipe) {
+			transformerFactory = TransformerFactory.newInstance();
+			transformer = transformerFactory.newTransformer();
+			domSource = new DOMSource(doc);
+			streamResult = new StreamResult(file);
 			
-		}
-		
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		DOMSource domSource = new DOMSource(doc);
-		StreamResult streamResult = new StreamResult(file);
-		
-		try {
 			transformer.transform(domSource, streamResult);
-		} catch (TransformerException te) {
 			
+		} catch (Exception e) {
+			System.err.println(e);
 		}
-		
-		
-	}	
+	}
 }

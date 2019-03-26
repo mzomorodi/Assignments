@@ -9,10 +9,6 @@
 	<servlet>
 		<servlet-name>Login</servlet-name>
 		<servlet-class>mzomorod.Login</servlet-class>
-		<init-param>
-			<param-name>userlist</param-name>
-			<param-value>/resources/lab2.xml</param-value>
-		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
@@ -29,6 +25,10 @@
 	<servlet>
 		<servlet-name>Controller</servlet-name>
 		<servlet-class>mzomorod.Controller</servlet-class>
+		<init-param>
+			<param-name>userlist</param-name>
+			<param-value>/resources/lab2.xml</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	

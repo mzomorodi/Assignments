@@ -7,6 +7,18 @@ import java.util.*;
 
 public class Controller extends HttpServlet {
 	
+	private static String _filename = null;
+	
+	public void init(ServletConfig config) throws ServletException {
+		 
+		super.init(config);
+		_filename = config.getInitParameter("userlist");
+		if (_filename == null || _filename.length() == 0) {
+			throw new ServletException();
+		}
+		System.out.println("Loaded init param userlist with value " + _filename);
+	}
+	
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
 		throws ServletException, IOException {
 		
@@ -27,7 +39,20 @@ public class Controller extends HttpServlet {
 				res.sendRedirect(res.encodeRedirectURL(req.getContextPath() + "/controller"));
 				return;
 			} else if (action.equals("Confirm")) {
-				
+				InputStream is = this.getClass().getClassLoader().getResourceAsStream(_filename);
+				URL resourceUrl = this.getClass().getResource(_filename);
+				UserData.addUser(user, is, resourceUrl);
+				res.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+				res.sendRedirect(res.encodeRedirectURL(req.getContextPath() + "/welcome"));
+				Cookie fnameCookie = new Cookie("fname", user.getFirstName());
+				fnameCookie.setMaxAge(360*24*7);
+				res.addCookie(fnameCookie);
+				Cookie lnameCookie = new Cookie("lname", user.getLastName());
+				lnameCookie.setMaxAge(360*24*7);
+				res.addCookie(lnameCookie);
+				session.invalidate();
+				res.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+				res.sendRedirect(res.encodeRedirectURL(req.getContextPath() + "/"));
 			}
 		}
 		
@@ -77,7 +102,7 @@ public class Controller extends HttpServlet {
 		User user = (User) session.getAttribute("user");
 		
 		System.out.println("GETVIEW: " + view);
-		if (view == null || view.equals("Page3")) {
+		if (view == null || view.equals("Page3") || view.equals("Page6")) {
 			view = "Page2";
 			req.setAttribute("firstname", user.getFirstName());
 			req.setAttribute("lastname", user.getLastName());
