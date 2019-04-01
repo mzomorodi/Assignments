@@ -12,9 +12,11 @@ public class Login extends HttpServlet {
 		PrintWriter out = res.getWriter();
 		
 		/* Process Request Headers */
-		String firstName, lastName;
-		Cookie fname, lname;
-		Cookie[] cookies = request.getCookies();
+		String firstName = null;
+		String lastName = null;
+		Cookie fname = null;
+		Cookie lname = null;
+		Cookie[] cookies = req.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("fname"))
