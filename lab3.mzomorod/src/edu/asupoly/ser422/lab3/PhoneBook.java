@@ -45,8 +45,11 @@ public class PhoneBook {
 	 *
 	 *	@param phone the number to search for
 	 *	@return the PhoneEntry, if found, or null
+	 *	@throws BadRequestException if the number is not 10 digits
 	 */
-	public PhoneEntry getEntry(String phone) {
+	public PhoneEntry getEntry(String phone) throws BadRequestException {
+		if (phone.length() != 10)
+			throw new BadRequestException("Invalid phone number");
 		return pbook.get(phone);
 	}
 		
@@ -133,7 +136,7 @@ public class PhoneBook {
 			throw new ConflictException("Phone number belongs to existing entry");
 		}
 		if (entry.getBookID().isEmpty()) {
-			throw new BadRequestException("Invalid book id");
+			throw new BadRequestException("Entry cannot be unlisted");
 		}
 		
 		LinkedList<PhoneEntry> entries = getEntries();
@@ -222,7 +225,11 @@ public class PhoneBook {
 		List<PhoneEntry> results = new LinkedList<PhoneEntry>();
 		LinkedList<PhoneEntry> entries = (LinkedList<PhoneEntry>) getPhoneBook(bid);
 		
-		if (area == null || area.isEmpty()) {
+		if ((area == null || area.isEmpty()) &&
+			(lname == null || lname.isEmpty())) {
+			
+			results = entries;
+		}  else if (area == null || area.isEmpty()) {
 			for (PhoneEntry entry : entries) {
 				if (lname.equals(entry.getLastName()))
 					results.add(entry);

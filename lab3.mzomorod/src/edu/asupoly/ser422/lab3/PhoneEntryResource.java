@@ -28,35 +28,201 @@ public class PhoneEntryResource {
 	@Context
 	private UriInfo _uriInfo;
 	
-	@GET
-	public Response getEntry() {
-		PhoneEntry entry = new PhoneEntry("3135589334",
-			"John", "Doe");
-		
-		try {
-			String str = new ObjectMapper().writeValueAsString(entry);
-			return Response.status(200).entity(str).build();
-		} catch (Exception e) {
-			System.err.println(e);
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{ \" Error: Unable to create new Entry. \"}").build();
-		}
-	}
+	/**
+     * @apiDefine BadRequestError
+     * @apiError (Error 4xx) {400} BadRequest Bad Request Encountered
+     */
+	/**
+     * @apiDefine ConflictError
+     * @apiError (Error 4xx) {409} Conflict Conflict Error
+     */
+	/**
+     * @apiDefine InternalServerError
+     * @apiError (Error 5xx) {500} InternalServer Undefined Error
+     */
+	/**
+     * @apiDefine NotFoundError
+     * @apiError (Error 4xx) {404} NotFound Resource Not Found
+     */
 	
-	
+	/**
+	 * @api {get} /pentry:pnumber Retrieve specific PhoneEntry
+     * @apiName getEntry
+     * @apiGroup PhoneEntry
+	 *
+	 * @apiParam {String} pnumber 10-digit phone number
+	 *
+	 * @apiParamExample {url} Retrieve PhoneEntry:
+	 *	http://localhost:8080/lab3/rest/pentry/9876543210
+	 *
+	 * @apiUse BadRequestError
+	 * @apiUse InternalServerError
+	 * @apiUse NotFoundError
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 	HTTP/1.1 200 OK
+	 *	{
+	 *		"phone" : "9876543210",
+	 *		"firstName" : "John",
+	 *		"lastName" : "Doe",
+	 *		"bookid" : "345"
+	 *	}
+	 */	
 	@GET
 	@Path("/{pnumber}")
 	public Response getEntry(@PathParam("pnumber") String num) {
-		PhoneEntry entry = pbook.getEntry(num);
-		if (entry != null) {
-			try {
-				String str = new ObjectMapper().writeValueAsString(entry);
-				return Response.status(Response.Status.CREATED).entity(str).build();
-			} catch (Exception e) {
-				System.err.println(e);
-				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{ \" Error: Unable to create new Entry. \"}").build();
+		PhoneEntry pe;
+		try {
+			pe = pbook.getEntry(num);
+			if (pe == null) {
+				return Response.status(Response.Status.NOT_FOUND).entity(
+				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
+			} else {
+				String pStr = new ObjectMapper().writeValueAsString(pe);
+				return Response.status(Response.Status.OK).entity(pStr).build();
 			}
-		} else {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{ \" Error: Unable to create new Entry. \"}").build();
+		} catch (BadRequestException bre) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(
+				"{ \"message\" : \"" + bre.toString() + "\"}").build();
+		} catch (Exception e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+				"{ \"message\" : \"" + e.toString() + "\"}").build();
+		}
+	}
+	
+	/**
+	 * @api {post} /pentry Create new PhoneEntry
+     * @apiName createEntry
+     * @apiGroup PhoneEntry
+	 *
+	 * @apiParam {String} pnumber 10-digit phone number
+	 * @apiParam {String} firstName First name of contact
+	 * @apiParam {String} lastName Last name of contact
+	 *
+	 * @apiParamExample {json} Create:
+	 *	{
+	 *		"phone" : "9876543210",
+	 *		"firstName" : "John",
+	 *		"lastName" : "Doe"
+	 *	}
+	 *
+	 * @apiUse BadRequestError
+	 * @apiUse ConflictError
+	 * @apiUse InternalServerError
+     * @apiUse NotFoundError
+	 *
+	 * @apiSuccessExample {header} Success-Response:
+	 * 	HTTP/1.1 201 CREATED
+	 *	{
+	 *		"Location" : "http://localhost:8080/lab3/rest/pentry/9876543210"
+	 *	}
+	 */
+	@POST
+	@Consumes("application/json")
+	public Response createEntry(PhoneEntry pe) {
+		try {
+			pbook.createEntry(pe);
+			return Response.status(Response.Status.CREATED).
+				header("Location", String.format("%s/%s",
+				_uriInfo.getAbsolutePath().toString(), pe.getPhone())).build();
+		} catch (BadRequestException bre) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(
+				"{ \"message\" : \"" + bre.toString() + "\"}").build();
+		} catch (ConflictException ce) {
+			return Response.status(Response.Status.CONFLICT).entity(
+				"{ \"message\" : \"" + ce.toString() + "\"}").build();
+		} catch (Exception e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+				"{ \"message\" : \"" + e.toString() + "\"}").build();
+		}
+	}
+	
+	/**
+	 * @api {put} /pentry Update PhoneEntry
+     * @apiName updateEntry
+     * @apiGroup PhoneEntry
+	 *
+	 * @apiParam {String} pnumber 10-digit phone number
+	 * @apiParam {String} firstName First name of contact
+	 * @apiParam {String} lastName Last name of contact
+	 * @apiParam {String} bookid Phonebook ID of Entry
+	 *
+	 * @apiParamExample {json} Update:
+	 *	{
+	 *		"phone" : "9876543211",
+	 *		"firstName" : "John",
+	 *		"lastName" : "Doe",
+	 *		"bookid" : "3"
+	 *	}
+	 *
+	 * @apiUse BadRequestError
+	 * @apiUse ConflictError
+	 * @apiUse InternalServerError
+     * @apiUse NotFoundError
+	 *
+	 * @apiSuccessExample {header} Success-Response:
+	 * 	HTTP/1.1 204 NO_CONTENT
+	 *	{
+	 *		"Location" : "http://localhost:8080/lab3/rest/pentry/9876543211"
+	 *	}
+	 */
+	@PUT
+	@Consumes("application/json")
+	public Response updateEntry(PhoneEntry pe) {
+		try {
+			pbook.updateEntry(pe);
+			return Response.status(Response.Status.NO_CONTENT).
+				header("Location", String.format("%s/%s",
+				_uriInfo.getAbsolutePath().toString(), pe.getPhone())).build();
+		} catch (NotFoundException nfe) {
+			return Response.status(Response.Status.NOT_FOUND).entity(
+				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
+		} catch (BadRequestException bre) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(
+				"{ \"message\" : \"" + bre.toString() + "\"}").build();
+		} catch (ConflictException ce) {
+			return Response.status(Response.Status.CONFLICT).entity(
+				"{ \"message\" : \"" + ce.toString() + "\"}").build();
+		} catch (Exception e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+				"{ \"message\" : \"" + e.toString() + "\"}").build();
+		}
+	}
+	
+	/**
+	 * @api {delete} /pentry:pnumber Delete specific PhoneEntry
+     * @apiName deleteEntry
+     * @apiGroup PhoneEntry
+	 *
+	 * @apiParam {String} pnumber 10-digit phone number
+	 *
+	 * @apiParamExample {url} Delete PhoneEntry:
+	 *	http://localhost:8080/lab3/rest/pentry/9876543210
+	 *
+	 * @apiUse BadRequestError
+	 * @apiUse InternalServerError
+     * @apiUse NotFoundError
+	 *
+	 * @apiSuccessExample Success-Response:
+	 * 	HTTP/1.1 204 NO_CONTENT
+	 */
+	@DELETE
+	@Path("/{pnumber}")
+	public Response deleteEntry(@PathParam("pnumber") String num) {
+		try {
+			PhoneEntry pe = pbook.remove(num);
+			if (pe == null) {
+				return Response.status(Response.Status.NOT_FOUND).entity(
+				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
+			} else {
+				return Response.status(Response.Status.NO_CONTENT).build();
+			}
+		} catch (BadRequestException bre) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(
+				"{ \"message\" : \"" + bre.toString() + "\"}").build();
+		} catch (Exception e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+				"{ \"message\" : \"" + e.toString() + "\"}").build();
 		}
 	}
 	
