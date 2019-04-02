@@ -14,6 +14,9 @@
     <copy todir="${destdir}/WEB-INF/lib">
       <fileset dir="${srclib}"/>
     </copy>
+	<copy todir="${destdir}/WEB-INF/classes/edu/asupoly/ser422/lab3/resources"/>
+		<fileset dir="resources"/>
+	</copy>
     <javac classpathref="classpath" srcdir="src" destdir="${destdir}/WEB-INF/classes/" />
   </target>
 

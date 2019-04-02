@@ -1,5 +1,7 @@
 package edu.asupoly.ser422.lab3;
 
+import java.util.*;
+
 public class PhoneEntry {
 	
 	private String phone;

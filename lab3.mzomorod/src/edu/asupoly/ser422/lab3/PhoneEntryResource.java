@@ -138,16 +138,17 @@ public class PhoneEntryResource {
 	}
 	
 	/**
-	 * @api {put} /pentry Update PhoneEntry
+	 * @api {put} /pentry:pnumber Update PhoneEntry with given number
      * @apiName updateEntry
      * @apiGroup PhoneEntry
 	 *
-	 * @apiParam {String} pnumber 10-digit phone number
+	 * @apiParam {String} pnumber New 10-digit phone number
 	 * @apiParam {String} firstName First name of contact
 	 * @apiParam {String} lastName Last name of contact
 	 * @apiParam {String} bookid Phonebook ID of Entry
 	 *
 	 * @apiParamExample {json} Update:
+	 *	http://localhost:8080/lab3/rest/pentry/9876543211
 	 *	{
 	 *		"phone" : "9876543211",
 	 *		"firstName" : "John",
@@ -167,8 +168,9 @@ public class PhoneEntryResource {
 	 *	}
 	 */
 	@PUT
+	@Path("/{pnumber}")
 	@Consumes("application/json")
-	public Response updateEntry(PhoneEntry pe) {
+	public Response updateEntry(@PathParam("pnumber") String num, PhoneEntry pe) {
 		try {
 			pbook.updateEntry(pe);
 			return Response.status(Response.Status.NO_CONTENT).
@@ -194,7 +196,7 @@ public class PhoneEntryResource {
      * @apiName deleteEntry
      * @apiGroup PhoneEntry
 	 *
-	 * @apiParam {String} pnumber 10-digit phone number
+	 * @apiParam {String} pnumber 10-digit phone number of Entry
 	 *
 	 * @apiParamExample {url} Delete PhoneEntry:
 	 *	http://localhost:8080/lab3/rest/pentry/9876543210
@@ -208,18 +210,15 @@ public class PhoneEntryResource {
 	 */
 	@DELETE
 	@Path("/{pnumber}")
-	public Response deleteEntry(@PathParam("pnumber") String num) {
+	public Response removeEntry(@PathParam("pnumber") String num) {
 		try {
-			PhoneEntry pe = pbook.remove(num);
-			if (pe == null) {
-				return Response.status(Response.Status.NOT_FOUND).entity(
-				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
-			} else {
-				return Response.status(Response.Status.NO_CONTENT).build();
-			}
+			return Response.status(Response.Status.NO_CONTENT).build();
 		} catch (BadRequestException bre) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(
 				"{ \"message\" : \"" + bre.toString() + "\"}").build();
+		} catch (NotFoundException nfe) {
+			return Response.status(Response.Status.NOT_FOUND).entity(
+				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
 		} catch (Exception e) {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
 				"{ \"message\" : \"" + e.toString() + "\"}").build();
