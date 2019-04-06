@@ -1,0 +1,7 @@
+{
+  "name": "SER 422 Lab3",
+  "version": "0.1.0",
+  "description": "SER422 REST example project",
+  "title": "Lab3 REST API",
+  "url" : "http://localhost:8080/lab3/rest/"
+}

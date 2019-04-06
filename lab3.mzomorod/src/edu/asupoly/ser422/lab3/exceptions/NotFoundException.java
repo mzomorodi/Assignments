@@ -9,6 +9,6 @@ public class NotFoundException extends Exception {
 	}
 	
 	public String toString() {
-		return "BadRequestException[" + details + "]";
+		return "NotFoundException[" + details + "]";
 	}
 }

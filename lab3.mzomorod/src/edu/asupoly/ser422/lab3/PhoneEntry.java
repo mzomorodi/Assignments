@@ -1,28 +1,13 @@
 package edu.asupoly.ser422.lab3;
 
-import java.util.*;
-
 public class PhoneEntry {
 	
 	private String phone;
 	private String firstname;
     private String lastname;
-	private String bookid;
+	private String book;
 	
-	public PhoneEntry() {
-		this.bookid = "";
-	}
-	
-	public PhoneEntry(String phone, String fname, String lname) {
-		this(phone, fname, lname, "");
-	}
-	
-	public PhoneEntry(String phone, String fname, String lname, String id) {
-		this.phone = phone;
-		this.firstname  = fname;
-		this.lastname  = lname;
-		this.bookid = id;
-	}
+	public PhoneEntry() {}
 	
 	public String getPhone() {
 		return this.phone;
@@ -36,8 +21,8 @@ public class PhoneEntry {
 		return this.lastname;
 	}
 	
-	public String getBookID() {
-		return this.bookid;
+	public String getBook() {
+		return this.book;
 	}
 	
 	public void setPhone(String p) {
@@ -52,11 +37,7 @@ public class PhoneEntry {
 		this.lastname = l;
 	}
 	
-	public void setBookID(String id) {
-		this.bookid = id;
-	}
-	
-	public void unlist() {
-		this.bookid = "";
+	public void setBook(String b) {
+		this.book = b;
 	}
 }

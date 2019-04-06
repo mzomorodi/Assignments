@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.asupoly.ser422.lab3.exceptions.*;
 
@@ -45,104 +46,7 @@ public class PhoneBookResource {
      */
 	
 	/**
-	 * @api {put} Unlist Entry
-     * @apiName unlistEntry
-     * @apiGroup Phonebook
-	 *
-	 * @apiParam {String} phone 10-digit phone number of entry
-	 *
-	 * @apiParamExample {json} Unlist Entry:
-	 *	{
-	 *		"phone" : "9876543210"
-	 *	}
-	 *
-	 * @apiUse BadRequestError
-	 * @apiUse InternalServerError
-	 * @apiUse NotFoundError
-	 *
-	 * @apiSuccessExample {header} Success-Response:
-	 * 	HTTP/1.1 204 NO_CONTENT
-	 *	{
-	 *		"Location" : "http://localhost:8080/lab3/rest/pentry/9876543210"
-	 *	}
-	 */
-	@PUT
-	@Consumes("application/json")
-	public Response unlistEntry(PhoneEntry pe) {
-		//TODO: refactor unlist
-		try {
-			pbook.moveEntry(pe);
-			if (pe.getBookID().isEmpty()) {
-				return Response.status(Response.Status.NO_CONTENT).build();
-			} else {
-				return Response.status(Response.Status.NO_CONTENT).
-				header("Location", String.format("%s/pentry/%s",
-				_uriInfo.getBaseUri().toString(), pe.getPhone())).build();
-			}
-		} catch (BadRequestException bre) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(
-				"{ \"message\" : \"" + bre.toString() + "\"}").build();
-		} catch (NotFoundException nfe) {
-			return Response.status(Response.Status.NOT_FOUND).entity(
-				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
-		} catch (Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
-				"{ \"message\" : \"" + e.toString() + "\"}").build();
-		}
-	}
-	
-	/**
-	 * @api {put} /:bid Move Entry to specified Phonebook
-     * @apiName moveEntry
-     * @apiGroup Phonebook
-	 *
-	 * @apiParam {String} bid ID of destination Phonebook
-	 * @apiParam {String} phone 10-digit phone number of Entry
-	 *
-	 * @apiParamExample {json} Move Entry:
-	 * http://localhost:8080/lab3/rest/pbook/3
-	 *	{
-	 *		"phone" : "9876543210"
-	 *	}
-	 *
-	 * @apiUse BadRequestError
-	 * @apiUse InternalServerError
-	 * @apiUse NotFoundError
-	 *
-	 * @apiSuccessExample {header} Success-Response:
-	 * 	HTTP/1.1 204 NO_CONTENT
-	 *	{
-	 *		"Location" : "http://localhost:8080/lab3/rest/pentry/9876543210"
-	 *	}
-	 */
-	@PUT
-	@Path("/{bid}")
-	@Consumes("application/json")
-	public Response moveEntry(@PathParam("bid") String bid, PhoneEntry pe) {
-		//TODO: refactor move (unlist if {bid} is empty/null)
-		try {
-			pbook.moveEntry(pe);
-			if (pe.getBookID().isEmpty()) {
-				return Response.status(Response.Status.NO_CONTENT).build();
-			} else {
-				return Response.status(Response.Status.NO_CONTENT).
-				header("Location", String.format("%s/pentry/%s",
-				_uriInfo.getBaseUri().toString(), pe.getPhone())).build();
-			}
-		} catch (BadRequestException bre) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(
-				"{ \"message\" : \"" + bre.toString() + "\"}").build();
-		} catch (NotFoundException nfe) {
-			return Response.status(Response.Status.NOT_FOUND).entity(
-				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
-		} catch (Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
-				"{ \"message\" : \"" + e.toString() + "\"}").build();
-		}
-	}
-	
-	/**
-	 * @api {get} /pbook:bid Retrieve specific Phonebook
+	 * @api {get} pbook:bid Get Phonebook
      * @apiName getPhoneBook
      * @apiGroup PhoneBook
 	 *
@@ -151,11 +55,10 @@ public class PhoneBookResource {
 	 * @apiParam {String} [area] Optional 3-digit areacode query filter
 	 *
 	 * @apiParamExample {url} Retrieve PhoneEntry:
-	 *	http://localhost:8080/lab3/rest/pbook/3?lname=Doe&area=586
+	 *	http://localhost:8080/lab3/rest/pbook/3?lname=Doe&area=987
 	 *
 	 * @apiUse BadRequestError
 	 * @apiUse InternalServerError
-	 * @apiUse NotFoundError
 	 *
 	 * @apiSuccessExample {json} Success-Response:
 	 * 	HTTP/1.1 200 OK
@@ -167,9 +70,9 @@ public class PhoneBookResource {
 	 *			"bookid" : "345"
 	 *		},
 	 *		{
-	 *			"phone" : "8765432109",
+	 *			"phone" : "9875432109",
 	 *			"firstName" : "Jane",
-	 *			"lastName" : "Johnson",
+	 *			"lastName" : "Doe",
 	 *			"bookid" : "345"
 	 *		},
 	 *	}
@@ -181,9 +84,9 @@ public class PhoneBookResource {
 		
 		List<PhoneEntry> entries;
 		try {
-			entries = pbook.filter(bid, area, lname);
+			entries = pbook.getPhoneBook(bid, area, lname);
 			String eList = new ObjectMapper().writeValueAsString(entries);
-			return Response.status.Response.Status.OK).entity(eList).build();
+			return Response.status(Response.Status.OK).entity(eList).build();
 		} catch (BadRequestException bre) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(
 				"{ \"message\" : \"" + bre.toString() + "\"}").build();
@@ -193,18 +96,82 @@ public class PhoneBookResource {
 		}
 	}
 	
-	
-	@DELETE
-	@Path("/{bookid}")
-	public Response removePhoneBook(@PathParam("bookid") String num) {
+	/**
+	 * @api {put} pbook Move PhoneEntry
+     * @apiName moveEntry
+     * @apiGroup PhoneBook
+	 *
+	 * @apiParam {String} phone 10-digit phone number of entry
+	 * @apiParam {String} bookid ID of new Phonebook
+	 *
+	 * @apiParamExample {json} Move Entry:
+	 *	{
+	 *		"phone" : "9876543210",
+	 *		"bookid" : "3"
+	 *	}
+	 *
+	 * @apiParamExample {json} Unlist Entry:
+	 *	{
+	 *		"phone" : "9876543210",
+	 *		"bookid" : ""
+	 *	}
+	 *
+	 * @apiUse BadRequestError
+	 * @apiUse InternalServerError
+	 * @apiUse NotFoundError
+	 *
+	 * @apiSuccessExample {header} Success-Response:
+	 * 	HTTP/1.1 204 NO_CONTENT
+	 *	{
+	 *		"Location" : "http://localhost:8080/lab3/rest/pentry/9876543210"
+	 *	}
+	 */
+	@PUT
+	@Consumes("application/json")
+	public Response moveEntry(PhoneEntry pe) {
 		try {
-			return Response.status(Response.Status.NO_CONTENT).build();
+			pbook.moveEntry(pe);
+			return Response.status(Response.Status.NO_CONTENT).
+				header("Location", String.format("%s/pentry/%s",
+				_uriInfo.getBaseUri().toString(), pe.getPhone())).build();
 		} catch (BadRequestException bre) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(
 				"{ \"message\" : \"" + bre.toString() + "\"}").build();
 		} catch (NotFoundException nfe) {
 			return Response.status(Response.Status.NOT_FOUND).entity(
 				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
+		} catch (Exception e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+				"{ \"message\" : \"" + e.toString() + "\"}").build();
+		}
+	}
+	
+	/**
+	 * @api {delete} pbook:bookid Delete PhoneBook
+     * @apiName deletePhoneBook
+     * @apiGroup PhoneBook
+	 *
+	 * @apiParam {String} bookid ID of PhoneBook to be deleted
+	 *
+	 * @apiParamExample {url} Delete PhoneEntry:
+	 *	http://localhost:8080/lab3/rest/pbook/345
+	 *
+	 * @apiUse InternalServerError
+	 * @apiUse ConflictError
+	 *
+	 * @apiSuccessExample Success-Response:
+	 * 	HTTP/1.1 204 NO_CONTENT
+	 */
+	@DELETE
+	@Path("/{bookid}")
+	public Response deletePhoneBook(@PathParam("bookid") String bid) {
+		try {
+			if (pbook.deletePhoneBook(bid)) {
+				return Response.status(Response.Status.NO_CONTENT).build();
+			} else {
+				return Response.status(Response.Status.CONFLICT).entity(
+					"{ \"message\" : \"Phonebook not empty\"}").build();
+			}
 		} catch (Exception e) {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
 				"{ \"message\" : \"" + e.toString() + "\"}").build();

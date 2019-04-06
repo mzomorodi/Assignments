@@ -20,7 +20,6 @@ import edu.asupoly.ser422.lab3.exceptions.*;
 
 @Path("/pentry")
 @Produces({MediaType.APPLICATION_JSON})
-
 public class PhoneEntryResource {
 	
 	private static PhoneBook pbook = PhoneBook.getInstance();
@@ -46,7 +45,7 @@ public class PhoneEntryResource {
      */
 	
 	/**
-	 * @api {get} /pentry:pnumber Retrieve specific PhoneEntry
+	 * @api {get} pentry:pnumber Get PhoneEntry
      * @apiName getEntry
      * @apiGroup PhoneEntry
 	 *
@@ -71,19 +70,16 @@ public class PhoneEntryResource {
 	@GET
 	@Path("/{pnumber}")
 	public Response getEntry(@PathParam("pnumber") String num) {
-		PhoneEntry pe;
 		try {
-			pe = pbook.getEntry(num);
-			if (pe == null) {
-				return Response.status(Response.Status.NOT_FOUND).entity(
-				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
-			} else {
-				String pStr = new ObjectMapper().writeValueAsString(pe);
-				return Response.status(Response.Status.OK).entity(pStr).build();
-			}
+			PhoneEntry pe = pbook.getEntry(num);
+			String pStr = new ObjectMapper().writeValueAsString(pe);
+			return Response.status(Response.Status.OK).entity(pStr).build();
 		} catch (BadRequestException bre) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(
 				"{ \"message\" : \"" + bre.toString() + "\"}").build();
+		} catch (NotFoundException nfe) {
+			return Response.status(Response.Status.NOT_FOUND).entity(
+				"{ \"message\" : \"" + nfe.toString() + "\"}").build();
 		} catch (Exception e) {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
 				"{ \"message\" : \"" + e.toString() + "\"}").build();
@@ -91,7 +87,7 @@ public class PhoneEntryResource {
 	}
 	
 	/**
-	 * @api {post} /pentry Create new PhoneEntry
+	 * @api {post} pentry Create PhoneEntry
      * @apiName createEntry
      * @apiGroup PhoneEntry
 	 *
@@ -120,10 +116,11 @@ public class PhoneEntryResource {
 	@POST
 	@Consumes("application/json")
 	public Response createEntry(PhoneEntry pe) {
+		pe.setBook("");
 		try {
 			pbook.createEntry(pe);
 			return Response.status(Response.Status.CREATED).
-				header("Location", String.format("%s/%s",
+				header("Location", String.format("%s/pentry/%s",
 				_uriInfo.getAbsolutePath().toString(), pe.getPhone())).build();
 		} catch (BadRequestException bre) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(
@@ -138,7 +135,7 @@ public class PhoneEntryResource {
 	}
 	
 	/**
-	 * @api {put} /pentry:pnumber Update PhoneEntry with given number
+	 * @api {put} pentry Update PhoneEntry
      * @apiName updateEntry
      * @apiGroup PhoneEntry
 	 *
@@ -148,7 +145,6 @@ public class PhoneEntryResource {
 	 * @apiParam {String} bookid Phonebook ID of Entry
 	 *
 	 * @apiParamExample {json} Update:
-	 *	http://localhost:8080/lab3/rest/pentry/9876543211
 	 *	{
 	 *		"phone" : "9876543211",
 	 *		"firstName" : "John",
@@ -168,9 +164,8 @@ public class PhoneEntryResource {
 	 *	}
 	 */
 	@PUT
-	@Path("/{pnumber}")
 	@Consumes("application/json")
-	public Response updateEntry(@PathParam("pnumber") String num, PhoneEntry pe) {
+	public Response updateEntry(PhoneEntry pe) {
 		try {
 			pbook.updateEntry(pe);
 			return Response.status(Response.Status.NO_CONTENT).
@@ -192,7 +187,7 @@ public class PhoneEntryResource {
 	}
 	
 	/**
-	 * @api {delete} /pentry:pnumber Delete specific PhoneEntry
+	 * @api {delete} pentry:pnumber Delete PhoneEntry
      * @apiName deleteEntry
      * @apiGroup PhoneEntry
 	 *
@@ -212,6 +207,7 @@ public class PhoneEntryResource {
 	@Path("/{pnumber}")
 	public Response removeEntry(@PathParam("pnumber") String num) {
 		try {
+			pbook.deleteEntry(num);
 			return Response.status(Response.Status.NO_CONTENT).build();
 		} catch (BadRequestException bre) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(
@@ -223,17 +219,5 @@ public class PhoneEntryResource {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
 				"{ \"message\" : \"" + e.toString() + "\"}").build();
 		}
-	}
-	
-	@POST
-	@Consumes("application/json")
-	public Response createEntry(PhoneEntry pe) {
-		System.out.println("Number: " + pe.getPhone());
-		System.out.println("First Name: " + pe.getFirstName());
-		System.out.println("Last Name: " + pe.getLastName());
-		System.out.println("PID: " + pe.getBookID());
-		
-		return Response.status(201).entity("{ \"PID\" : \"" +
-			pe.getBookID() + "\"}").build();
 	}
 }

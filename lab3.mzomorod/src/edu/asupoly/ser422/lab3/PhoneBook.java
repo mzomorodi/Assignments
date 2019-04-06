@@ -1,15 +1,20 @@
 package edu.asupoly.ser422.lab3;
 
-import java.io.*;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.*;
+import com.fasterxml.jackson.databind.*;
+
 import java.util.*;
+import java.io.*;
+import java.net.*;
+import java.nio.file.*;
 
 import edu.asupoly.ser422.lab3.exceptions.*;
 
 public class PhoneBook {
 	
 	private static PhoneBook pmanager;
-	
-	private Map<String, PhoneEntry> pbook = new HashMap<String, PhoneEntry>();
+	private static HashMap<String,PhoneEntry> pbook;
 	
 	private PhoneBook() {}
 	
@@ -22,23 +27,38 @@ public class PhoneBook {
 	public static synchronized PhoneBook getInstance() {
 		if (pmanager == null) {
 			pmanager = new PhoneBook();
+			pbook = new HashMap<String,PhoneEntry>();
+			try {
+				pmanager.loadBook();
+			} catch (Exception e) {
+				System.out.println("Book initialization failed.");
+			}
 		}
 		
 		return pmanager;
 	}
 	
-	public boolean contains(String phone) {
-		return pbook.containsKey(phone);
+	private void loadBook() throws IOException, URISyntaxException {
+		File file = Paths.get(getClass().getResource("phonebook.txt").toURI()).toFile();
+		TypeReference ref = new TypeReference<LinkedList<PhoneEntry>>() { };
+		LinkedList<PhoneEntry> entries = new ObjectMapper().readValue(file, ref);
+		
+		for (PhoneEntry entry : entries) {
+			pbook.put(entry.getPhone(), entry);
+		}
 	}
 	
-	public int size() {
-		return pbook.size();
+	private void saveBook() {
+		LinkedList<PhoneEntry> entries = new LinkedList<PhoneEntry>(pbook.values());
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			File file = Paths.get(getClass().getResource("phonebook.txt").toURI()).toFile();
+			mapper.writeValue(file, entries);
+		} catch(Exception e) {
+			System.out.println("Book save failed.");
+		}
+		
 	}
-	
-	public LinkedList<PhoneEntry> getEntries() {
-		return ((LinkedList<PhoneEntry>) pbook.values());
-	}
-	
 	/**
 	 *	(1) Provide an ability to retrieve a specific
 	 *	PhoneEntry based on a phone number.
@@ -46,11 +66,22 @@ public class PhoneBook {
 	 *	@param phone the number to search for
 	 *	@return the PhoneEntry, if found, or null
 	 *	@throws BadRequestException if the number is not 10 digits
+	 *	@throws NotFoundException if no such PhoneEntry exists
 	 */
-	public PhoneEntry getEntry(String phone) throws BadRequestException {
+	
+	public synchronized PhoneEntry getEntry(String phone)
+		throws BadRequestException, NotFoundException {
+		
 		if (phone.length() != 10)
 			throw new BadRequestException("Invalid phone number");
-		return pbook.get(phone);
+		
+		PhoneEntry entry = pbook.get(phone);
+		
+		if (entry == null) {
+			throw new NotFoundException("No entry found");
+		}
+		
+		return entry;
 	}
 		
 	/**
@@ -65,11 +96,9 @@ public class PhoneBook {
 	 *	@throws ConflictException if an entry with the number
 	 *			already exists
 	 */
-	public void createEntry(PhoneEntry entry)
+	public synchronized void createEntry(PhoneEntry entry)
 		throws BadRequestException, ConflictException {
-		if (contains(entry.getPhone())) {
-			throw new ConflictException("Phone number belongs to existing entry");
-		}
+		
 		if (entry.getPhone() == null || entry.getPhone().length() != 10) {
 			throw new BadRequestException("Invalid phone number");
 		}
@@ -78,7 +107,14 @@ public class PhoneBook {
 			throw new BadRequestException("Invalid first or last name");
 		}
 		
+		if (pbook.containsKey(entry.getPhone())) {
+			throw new ConflictException("Number already in use");
+		}
+		
+		entry.setBook("");
 		pbook.put(entry.getPhone(), entry);
+		
+		saveBook();
 	}
 		
 	/**
@@ -94,20 +130,24 @@ public class PhoneBook {
 	 *	@throws BadRequestException if an input is invalid
 	 *	@throws NotFoundException if there is no corresponding entry
 	 */
-	public void moveEntry(PhoneEntry entry)
+	public synchronized void moveEntry(PhoneEntry entry)
 		throws BadRequestException, NotFoundException {
+		
 		if (entry.getPhone() == null || entry.getPhone().length() != 10) {
 			throw new BadRequestException("Invalid phone number"); 
 		}
-		if (contains(entry.getPhone())) {
-			PhoneEntry e = getEntry(entry.getPhone());
-			if (entry.getBookID().isEmpty())
-				e.unlist();
+		
+		if (pbook.containsKey(entry.getPhone())) {
+			PhoneEntry e = pbook.get(entry.getPhone());
+			if (entry.getBook().isEmpty())
+				e.setBook("");
 			else
-				e.setBookID(entry.getBookID());
+				e.setBook(entry.getBook());
 		} else {
 			throw new NotFoundException("No existing entry found");
 		}
+		
+		saveBook();
 	}
 	
 	/**
@@ -122,8 +162,8 @@ public class PhoneBook {
 	 *	@throws BadRequestException if an input is invalid
 	 *	@throws NotFoundException if there is no corresponding entry
 	 */
-	public void updateEntry(PhoneEntry entry)
-		throws ConflictException, BadRequestException, NotFoundException {
+	public synchronized void updateEntry(PhoneEntry entry)
+		throws BadRequestException, ConflictException, NotFoundException {
 		
 		if (entry.getPhone() == null || entry.getPhone().length() != 10) {
 			throw new BadRequestException("Invalid phone number");
@@ -132,19 +172,20 @@ public class PhoneBook {
 			entry.getLastName() == null || entry.getLastName().isEmpty()) {
 			throw new BadRequestException("Invalid first or last name");
 		}
-		if (contains(entry.getPhone())) {
-			throw new ConflictException("Phone number belongs to existing entry");
-		}
-		if (entry.getBookID().isEmpty()) {
+		if (entry.getBook().isEmpty()) {
 			throw new BadRequestException("Entry cannot be unlisted");
 		}
 		
-		LinkedList<PhoneEntry> entries = getEntries();
+		if (pbook.containsKey(entry.getPhone())) {
+			throw new ConflictException("Phone number belongs to existing entry");
+		}
+		
+		LinkedList<PhoneEntry> entries = new LinkedList<PhoneEntry>(pbook.values());
 		PhoneEntry pEntry = null;
 		for (PhoneEntry pe : entries) {
 			if (pe.getFirstName().equals(entry.getFirstName()) &&
 				pe.getLastName().equals(entry.getLastName()) &&
-				pe.getBookID().equals(entry.getBookID())) {
+				pe.getBook().equals(entry.getBook())) {
 					
 				pEntry = pe;
 			}	
@@ -154,6 +195,8 @@ public class PhoneBook {
 		} else {
 			pEntry.setPhone(entry.getPhone());
 		}
+		
+		saveBook();
 	}
 	
 	/**
@@ -163,14 +206,20 @@ public class PhoneBook {
 	 *	@param phone the phone number of the entry to remove
 	 *	@return	the entry removed, or null if non-existent
 	 *	@throws BadRequestException if an input is invalid
+	 *	@throws NotFoundException if the entry no longer exists
 	 */
-	public PhoneEntry remove(String phone) throws BadRequestException {
+	public synchronized void deleteEntry(String phone)
+		throws BadRequestException, NotFoundException {
 		
 		if (phone.length() != 10) {
 			throw new BadRequestException("Invalid phone number");
-		} else {
-			return pbook.remove(phone);
 		}
+		
+		if (pbook.remove(phone) == null) {
+			throw new NotFoundException("No existing entry found");
+		}
+		
+		saveBook();
 	}
 	
 	/**
@@ -178,76 +227,52 @@ public class PhoneBook {
 	 *	all entries within the PhoneBook. Use bid == "" to retrieve
 	 *	all unlisted entries.
 	 *
-	 *	@param pid the phonebook id to retrieve
-	 *	@return list of entries belonging to the phonebook, possibly empty
-	 *	@throws BadRequestException if an input is invalid
-	 */
-	public List<PhoneEntry> getPhoneBook(String bid) throws BadRequestException {
-		
-		if (bid == null) {
-			throw new BadRequestException("Invalid book id");
-		}
-		List<PhoneEntry> results = new LinkedList<PhoneEntry>();
-		LinkedList<PhoneEntry> entries = getEntries();
-		
-		for (PhoneEntry entry : entries) {
-			if (entry.getBookID().equals(bid))
-				results.add(entry);
-		}
-		
-		return results;
-	}
-	
-	/**
-	 * (7) Provide an ability to retrieve a subset of the PhoneEntry
+	 *  (7) Provide an ability to retrieve a subset of the PhoneEntry
 	 *	resources in a PhoneBook based on a substring of the lastname,
 	 *	or the area code (1st 3 digits) of a phone number, or both in
 	 *	the same query.
 	 *
-	 *	@param pid the phonebook to filter
+	 *	@param pid the phonebook id to retrieve
 	 *	@param area the area code to filter
 	 *	@param lname the last name to filter
-	 *	@return list of matching phonebook entries, possibly empty
+	 *	@return list of entries belonging to the phonebook, possibly empty
 	 *	@throws BadRequestException if an input is invalid
 	 */
-	public List<PhoneEntry> filter(String bid, String area, String lname)
-		throws BadRequestException {
-			
-		if (bid == null) {
-			throw new BadRequestException("Invalid book id");
-		}
+	public LinkedList<PhoneEntry> getPhoneBook(String bid, String area,
+		String lname) throws BadRequestException {
+		
 		if (area != null && area.length() != 3) {
 			throw new BadRequestException("Invalid area code");
 		}
-		if (lname != null && lname.isEmpty()) {
-			throw new BadRequestException("Invalid last name");
-		}
-		List<PhoneEntry> results = new LinkedList<PhoneEntry>();
-		LinkedList<PhoneEntry> entries = (LinkedList<PhoneEntry>) getPhoneBook(bid);
 		
-		if ((area == null || area.isEmpty()) &&
-			(lname == null || lname.isEmpty())) {
-			
-			results = entries;
-		}  else if (area == null || area.isEmpty()) {
+		LinkedList<PhoneEntry> entries = new LinkedList<PhoneEntry>(pbook.values());
+		LinkedList<PhoneEntry> results = new LinkedList<PhoneEntry>();
+		
+		for (PhoneEntry entry : entries) {
+			if (entry.getBook().equals(bid))
+				results.add(entry);
+		}
+		entries = results;
+		
+		if (area != null) {
+			results = new LinkedList<PhoneEntry>();
 			for (PhoneEntry entry : entries) {
-				if (lname.equals(entry.getLastName()))
+				if (entry.getPhone().substring(0,3).equals(area))
 					results.add(entry);
 			}
-		} else if (lname == null || lname.isEmpty()) {
-			for (PhoneEntry entry : entries) {
-				if (area.equals(entry.getPhone().substring(0, 4)))
-					results.add(entry);
-			}
-		} else {
-			for (PhoneEntry entry : entries) {
-				if (lname.equals(entry.getLastName()) &&
-					area.equals(entry.getPhone().substring(0, 4)))
-					results.add(entry);
-			}
+			entries = results;
 		}
 		
-		return results;
+		if (lname != null && !lname.isEmpty()) {
+			results = new LinkedList<PhoneEntry>();
+			for (PhoneEntry entry : entries) {
+				if (entry.getLastName().equals(lname))
+					results.add(entry);
+			}
+			entries = results;
+		}
+		
+		return entries;
 	}
 	
 	/**
@@ -257,10 +282,11 @@ public class PhoneBook {
 	 *
 	 *	@return true if the phonebook is empty, false otherwise
 	 */
-	public boolean removePhoneBook(String bid)
+	public boolean deletePhoneBook(String bid)
 		throws BadRequestException {
-			
-		LinkedList<PhoneEntry> results = (LinkedList<PhoneEntry>) getPhoneBook(bid);
+		
+		LinkedList<PhoneEntry> results = getPhoneBook(bid, null, null);
+		
 		return (results.size() == 0);
 	}
 }

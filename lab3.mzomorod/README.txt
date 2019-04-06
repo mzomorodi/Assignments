@@ -1,4 +1,5 @@
-Matthew Zomorodi
-mzomorod
-SER422 Spring 2019 Lab 3
-Professor Kevin Gary
+With regards to Requirement #4, it is possible that two entries exist in different phonebooks having the same first and last name, but different number. It will be impossible to determine which entry should be updated with the new number. In order to determine the identity of the correct entry, the request must specify which phonebook the entry belongs to, therefore entries must contain an attribute containing the value of their respective phonebook. Entries which are considered unlisted contain the empty value ("") for their phonebook id. It is also possible that two entries with the same name and different phone numbers exist within the same phonebook. This anomaly can happen if a new (unlisted) entry is created, and then moved to a particular phonebook where another entry with the same name already exists. In order to prevent this, when a move operation is requested, if there already exists an entry in the destination phonebook having the same name, the pre-existing entry will instead be updated to contain the values of the requesting entry. This is consistent with how a move operation would behave if an entry is moved from one phonebook to another.
+
+Because all entries remain in the same "space" and are only differentiated by their phonebook id attribute, there is only one file containing all the entries. The file uses the Jackson ObjectMapper to manage the entries and formatting.
+
+The build.xml file apidoc target is configured for Windows machines, specifically the dir and executable attributes. They may need to be changed to dir="." and executable="apidoc" in order to function correctly on other machines.
