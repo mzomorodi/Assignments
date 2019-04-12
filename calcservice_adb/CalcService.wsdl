@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://soa.ser422.asupoly.edu" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax21="http://soa.ser422.asupoly.edu/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" targetNamespace="http://soa.ser422.asupoly.edu">
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://soa.ser422.asupoly.edu/xsd">
+            <xs:complexType name="CalcService">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax22="http://soa.ser422.asupoly.edu/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://soa.ser422.asupoly.edu">
+            <xs:import namespace="http://soa.ser422.asupoly.edu/xsd"/>
+            <xs:element name="subtract">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="args0" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="subtractResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="set">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="args0" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="setResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getService">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getServiceResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:CalcService"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="get">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="add">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="args0" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="addRequest">
+        <wsdl:part name="parameters" element="ns:add"/>
+    </wsdl:message>
+    <wsdl:message name="addResponse">
+        <wsdl:part name="parameters" element="ns:addResponse"/>
+    </wsdl:message>
+    <wsdl:message name="setRequest">
+        <wsdl:part name="parameters" element="ns:set"/>
+    </wsdl:message>
+    <wsdl:message name="setResponse">
+        <wsdl:part name="parameters" element="ns:setResponse"/>
+    </wsdl:message>
+    <wsdl:message name="subtractRequest">
+        <wsdl:part name="parameters" element="ns:subtract"/>
+    </wsdl:message>
+    <wsdl:message name="subtractResponse">
+        <wsdl:part name="parameters" element="ns:subtractResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getRequest">
+        <wsdl:part name="parameters" element="ns:get"/>
+    </wsdl:message>
+    <wsdl:message name="getResponse">
+        <wsdl:part name="parameters" element="ns:getResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getServiceRequest">
+        <wsdl:part name="parameters" element="ns:getService"/>
+    </wsdl:message>
+    <wsdl:message name="getServiceResponse">
+        <wsdl:part name="parameters" element="ns:getServiceResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="CalcServicePortType">
+        <wsdl:operation name="add">
+            <wsdl:input message="ns:addRequest" wsaw:Action="urn:add"/>
+            <wsdl:output message="ns:addResponse" wsaw:Action="urn:addResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="set">
+            <wsdl:input message="ns:setRequest" wsaw:Action="urn:set"/>
+            <wsdl:output message="ns:setResponse" wsaw:Action="urn:setResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="subtract">
+            <wsdl:input message="ns:subtractRequest" wsaw:Action="urn:subtract"/>
+            <wsdl:output message="ns:subtractResponse" wsaw:Action="urn:subtractResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="get">
+            <wsdl:input message="ns:getRequest" wsaw:Action="urn:get"/>
+            <wsdl:output message="ns:getResponse" wsaw:Action="urn:getResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getService">
+            <wsdl:input message="ns:getServiceRequest" wsaw:Action="urn:getService"/>
+            <wsdl:output message="ns:getServiceResponse" wsaw:Action="urn:getServiceResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="CalcServiceSoap11Binding" type="ns:CalcServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="add">
+            <soap:operation soapAction="urn:add" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="set">
+            <soap:operation soapAction="urn:set" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="subtract">
+            <soap:operation soapAction="urn:subtract" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="get">
+            <soap:operation soapAction="urn:get" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getService">
+            <soap:operation soapAction="urn:getService" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CalcServiceSoap12Binding" type="ns:CalcServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="add">
+            <soap12:operation soapAction="urn:add" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="set">
+            <soap12:operation soapAction="urn:set" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="subtract">
+            <soap12:operation soapAction="urn:subtract" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="get">
+            <soap12:operation soapAction="urn:get" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getService">
+            <soap12:operation soapAction="urn:getService" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CalcServiceHttpBinding" type="ns:CalcServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="add">
+            <http:operation location="add"/>
+            <wsdl:input>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="set">
+            <http:operation location="set"/>
+            <wsdl:input>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="subtract">
+            <http:operation location="subtract"/>
+            <wsdl:input>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="get">
+            <http:operation location="get"/>
+            <wsdl:input>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getService">
+            <http:operation location="getService"/>
+            <wsdl:input>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="application/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="CalcService">
+        <wsdl:port name="CalcServiceHttpSoap11Endpoint" binding="ns:CalcServiceSoap11Binding">
+            <soap:address location="http://localhost:8080/axis2/services/CalcService"/>
+        </wsdl:port>
+        <wsdl:port name="CalcServiceHttpSoap12Endpoint" binding="ns:CalcServiceSoap12Binding">
+            <soap12:address location="http://localhost:8080/axis2/services/CalcService"/>
+        </wsdl:port>
+        <wsdl:port name="CalcServiceHttpEndpoint" binding="ns:CalcServiceHttpBinding">
+            <http:address location="http://localhost:8080/axis2/services/CalcService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
