@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+	<display-name>Lab4</display-name>
+	<description>SER422 Lab4</description>
+	
+	<servlet>
+		<servlet-name>CalculateGrade</servlet-name>
+		<servlet-class>edu.asupoly.ser422.lab4.client.CalculateGradeServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>MapToLetterGrade</servlet-name>
+		<servlet-class>edu.asupoly.ser422.lab4.client.MapToLetterGradeServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>GetSubjects</servlet-name>
+		<servlet-class>edu.asupoly.ser422.lab4.client.GetSubjectsServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>CalculateGrade</servlet-name>
+		<url-pattern>/calculate</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>MapToLetterGrade</servlet-name>
+		<url-pattern>/map</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>GetSubjects</servlet-name>
+		<url-pattern>/get</url-pattern>
+	</servlet-mapping>
+</web-app>

@@ -1,0 +1,65 @@
+<project name="Lab4" default="compile" basedir=".">
+	<property file="build.properties"/>
+	
+	<path id="axis2.class.path">
+        <pathelement path="${java.class.path}"/>
+        <fileset dir="${axis2.home}">
+            <include name="lib/*.jar"/>
+        </fileset>
+    </path>
+	
+	<!-- init target makes the directory structure. -->
+	<target name="init">
+		<tstamp/>
+		<mkdir dir="${classes.dir}"/>
+	</target>
+	
+	<!-- Compiles your java files and puts the classes in classes.dir -->
+	<target name="compile" depends="init">
+	<echo message="AXIS2_HOME: ${axis2.home}"/>
+		<javac
+			includeantruntime="false"
+			srcdir="${src.dir}"
+			destdir="${classes.dir}">
+			<!-- Make sure you set your classpath! -->
+			<classpath>
+				<fileset dir="${lib.dir}" includes="*.jar"/>
+				<fileset dir="${tomcat.home}-${port}/lib" includes="*.jar"/>
+				<fileset dir="${axis2.home}" includes="lib/*.jar"/>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="build" depends="compile">
+		<mkdir dir="${build.home}"/>
+		<mkdir dir="${build.home}/WEB-INF"/>
+		<copy todir="${build.home}/WEB-INF">
+			<fileset dir="." includes="${classes.dir}/**,${lib.dir}/**" />
+		</copy>
+		<copy todir="${build.home}/WEB-INF/lib">
+			<fileset dir="${axis2.home}/lib" includes="*.jar"/>
+		</copy>
+		<copy file="web.xml" tofile="${build.home}/WEB-INF/web.xml"/>
+	</target>
+	
+	<!-- This example dist target merely jars up the webapp files. -->
+	<target name="dist" depends="build">
+		<jar destfile="${dist.jar}" basedir="${build.home}">
+		</jar>
+	</target>
+	
+	<target name="deploy" depends="dist">
+		<echo message="Deploying to tomcat at ${tomcat.home}-${port}"/>
+		<copy file="${dist.jar}" todir="${tomcat.home}-${port}/webapps" overwrite="yes"/>
+	</target>
+	
+	<target name="clean">
+		<delete file="${dist.jar}"/>
+		<delete dir="${tomcat.home}-${port}/webapps/${app.name}-${asurite.id}"/>
+		<delete file="${tomcat.home}-${port}/webapps/${dist.jar}"/>
+		<delete dir="${build.home}"/>
+		<delete dir="${classes.dir}"/>
+	</target>
+	
+</project>
